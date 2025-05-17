@@ -1,0 +1,144 @@
+.main-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 1rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.blog-editor-container {
+  background: #fffdfc;
+  border: 1px solid #efefef;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.editor-heading {
+  color: #ef6f1e;
+  margin-bottom: 1rem;
+}
+
+.editor-label {
+  font-weight: 600;
+  margin-top: 1rem;
+  display: block;
+  color: #333;
+}
+
+.editor-input,
+.editor-textarea {
+  width: 100%;
+  margin-top: 0.3rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 1rem;
+  background-color: #fafafa;
+  transition: border 0.3s;
+}
+
+.editor-input:focus,
+.editor-textarea:focus {
+  outline: none;
+  border-color: #ef6f1e;
+  background-color: #fff;
+}
+
+.editor-buttons {
+  margin-top: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.btn {
+  padding: 0.7rem 1.4rem;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-draft {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.btn-draft:hover {
+  background-color: #d6d6d6;
+}
+
+.btn-publish {
+  background-color: #ef6f1e;
+  color: white;
+}
+
+.btn-publish:hover {
+  background-color: #dd6318;
+}
+
+.saved-status {
+  font-size: 0.9rem;
+  color: green;
+  margin-left: 1rem;
+}
+
+.blog-preview-container {
+  background: #fffefb;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.blog-preview-container h3 {
+  color: #ef6f1e;
+  margin-bottom: 1rem;
+}
+
+.blog-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.blog-card {
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid #eaeaea;
+  background-color: #fefefe;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  transition: box-shadow 0.2s ease;
+}
+
+.blog-card:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+}
+
+.blog-card h4 {
+  margin: 0 0 0.5rem;
+  color: #333;
+}
+
+.blog-card p {
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.tag-container {
+  margin-top: 0.5rem;
+}
+
+.tag {
+  background-color: #f2f2f2;
+  color: #333;
+  padding: 0.3rem 0.6rem;
+  margin-right: 0.4rem;
+  font-size: 0.8rem;
+  border-radius: 8px;
+  display: inline-block;
+}
