@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { v4 as uuidv4 } from "uuid";
 import "./BlogEditor.css";
 
 const BlogEditor = ({ BlogEditorId }) => {
@@ -10,15 +11,23 @@ const BlogEditor = ({ BlogEditorId }) => {
   const [isSaved, setIsSaved] = useState(false);
   const [draftBlogs, setDraftBlogs] = useState([]);
   const [publishedBlogs, setPublishedBlogs] = useState([]);
+  const [isAutoSaveActive, setIsAutoSaveActive] = useState(true);
 
   const saveDraft = async () => {
+    if (!title.trim() && !content.trim()) return;
     try {
-      await axios.post("http://localhost:5000/api/blogs/save-draft", {
-        id: blogId,
-        title,
-        content,
-        tags: tags.split(",").map((t) => t.trim()),
-      });
+      await axios.post(
+        "https://blog-editor-18gs.onrender.com/api/blogs/save-draft",
+        {
+          id: blogId,
+          title,
+          content,
+          tags: tags
+            .split(",")
+            .map((t) => t.trim())
+            .filter(Boolean),
+        }
+      );
       fetchPublished();
       setIsSaved(true);
       setTimeout(() => setIsSaved(false), 2000);
@@ -29,7 +38,9 @@ const BlogEditor = ({ BlogEditorId }) => {
 
   const fetchPublished = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/blogs/get-all");
+      const res = await axios.get(
+        "https://blog-editor-18gs.onrender.com/api/blogs/get-all"
+      );
       const published = res.data.published.filter(
         (blog) => blog.status === "published"
       );
@@ -45,27 +56,44 @@ const BlogEditor = ({ BlogEditorId }) => {
     fetchPublished();
   }, []);
 
+  // Auto-save every 30s
   useEffect(() => {
-    const debounce = setTimeout(saveDraft, 5000);
+    if (!isAutoSaveActive) return;
     const interval = setInterval(saveDraft, 30000);
-    return () => {
-      clearTimeout(debounce);
-      clearInterval(interval);
-    };
+    return () => clearInterval(interval);
+  }, [isAutoSaveActive]);
+
+  // Debounced save on content change
+  useEffect(() => {
+    if (!isAutoSaveActive) return;
+    const debounce = setTimeout(saveDraft, 5000);
+    return () => clearTimeout(debounce);
   }, [title, content, tags]);
 
   const handlePublish = async () => {
+    if (!title.trim() || !content.trim()) {
+      alert("Title and content cannot be empty.");
+      return;
+    }
     try {
-      await axios.post("http://localhost:5000/api/blogs/publish", {
-        id: blogId,
-        title,
-        content,
-        tags: tags.split(",").map((t) => t.trim()),
-      });
+      await axios.post(
+        "https://blog-editor-18gs.onrender.com/api/blogs/publish",
+        {
+          id: blogId,
+          title,
+          content,
+          tags: tags
+            .split(",")
+            .map((t) => t.trim())
+            .filter(Boolean),
+        }
+      );
       alert("Blog published!");
       setContent("");
       setTitle("");
       setTags("");
+      setIsAutoSaveActive(false);
+      setBlogId(uuidv4()); // Reset ID for next blog
       fetchPublished();
     } catch (err) {
       console.error("Error publishing blog:", err);
@@ -73,10 +101,22 @@ const BlogEditor = ({ BlogEditorId }) => {
   };
 
   const handleEditDraft = (blog) => {
+    // Optional: Ask for confirmation before replacing current blog
+    // if (!window.confirm("Do you want to edit this draft? Unsaved changes will be lost.")) return;
     setTitle(blog.title);
     setContent(blog.content);
     setTags(blog.tags.join(", "));
-    setBlogId(blog.Blogid);
+    setBlogId(blog.id || blog.Blogid); // Handle inconsistent naming
+    setIsAutoSaveActive(true);
+  };
+
+  const handleNewDraft = () => {
+    saveDraft();
+    setBlogId(uuidv4());
+    setTitle("");
+    setContent("");
+    setTags("");
+    setIsAutoSaveActive(true);
   };
 
   return (
@@ -91,6 +131,7 @@ const BlogEditor = ({ BlogEditorId }) => {
           placeholder="Enter blog title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          maxLength={100}
         />
 
         <label className="editor-label">Content</label>
@@ -109,22 +150,19 @@ const BlogEditor = ({ BlogEditorId }) => {
           placeholder="e.g., tech, react, tutorial"
           value={tags}
           onChange={(e) => setTags(e.target.value)}
+          maxLength={100}
         />
 
         <div className="editor-buttons">
-          <button
-            className="btn btn-draft"
-            onClick={() => {
-              saveDraft();
-              setTags("");
-              setTitle("");
-              setContent("");
-            }}
-          >
+          <button className="btn btn-draft" onClick={handleNewDraft}>
             Save as Draft
           </button>
 
-          <button className="btn btn-publish" onClick={handlePublish}>
+          <button
+            className="btn btn-publish"
+            onClick={handlePublish}
+            disabled={!title.trim() || !content.trim()}
+          >
             Publish
           </button>
           {isSaved && <span className="saved-status">Auto-saved</span>}
@@ -138,7 +176,7 @@ const BlogEditor = ({ BlogEditorId }) => {
         ) : (
           <ul className="blog-list">
             {publishedBlogs.map((blog) => (
-              <li key={blog.Blogid} className="blog-card">
+              <li key={blog.id || blog.Blogid} className="blog-card">
                 <h4>{blog.title}</h4>
                 <p>{blog.content.substring(0, 100)}...</p>
                 <div className="tag-container">
@@ -159,7 +197,7 @@ const BlogEditor = ({ BlogEditorId }) => {
         ) : (
           <ul className="blog-list">
             {draftBlogs.map((blog) => (
-              <li key={blog.Blogid} className="blog-card">
+              <li key={blog.id || blog.Blogid} className="blog-card">
                 <h4>{blog.title}</h4>
                 <p>{blog.content.substring(0, 100)}...</p>
                 <div className="tag-container">
